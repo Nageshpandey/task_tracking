@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LogIn } from 'lucide-react';
 import PropTypes from 'prop-types';
 import { loginUser } from '../services/authService';
+import { toast } from 'react-toastify'; // Import toast
 
 export const LoginForm = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -16,9 +17,11 @@ export const LoginForm = ({ onLogin }) => {
       const data = await loginUser(email, password);
       if (data && data.token) {
         onLogin(email, password);
+        toast.success('Login successful!'); // Show success toast
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
+      toast.error(err.message || 'Login failed. Please try again.'); // Show error toast
     }
   };
 
@@ -78,7 +81,6 @@ export const LoginForm = ({ onLogin }) => {
     </div>
   );
 };
-
 
 LoginForm.propTypes = {
   onLogin: PropTypes.func.isRequired

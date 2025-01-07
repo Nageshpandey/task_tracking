@@ -8,6 +8,7 @@ import { TaskFilter } from '../components/TaskFilter';
 import { useAuthStore } from '../store/authStore';
 import { useTaskStore } from '../store/taskStore';
 import * as api from '../lib/api';
+import { toast } from 'react-toastify'; // Import toast
 
 export function TaskDashboard() {
   const navigate = useNavigate();
@@ -23,7 +24,12 @@ export function TaskDashboard() {
   const createTaskMutation = useMutation({
     mutationFn: api.createTask,
     onSuccess: (newTask) => {
-      addTask(newTask);
+      console.log('New Task:', newTask); // Log the new task
+      addTask(newTask); // Add task to local store
+      const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      console.log('Current Local Tasks:', localTasks); // Log current tasks in local storage
+      localStorage.setItem('tasks', JSON.stringify([...localTasks, newTask])); // Save to local storage
+      toast.success('Task added successfully!'); // Show success toast for adding task
     },
   });
 
@@ -31,6 +37,7 @@ export function TaskDashboard() {
     mutationFn: api.updateTask,
     onSuccess: (updatedTask) => {
       updateLocalTask(updatedTask);
+      toast.success('Task updated successfully!'); // Show success toast for completing task
     },
   });
 
@@ -38,17 +45,22 @@ export function TaskDashboard() {
     mutationFn: api.deleteTask,
     onSuccess: (_, id) => {
       deleteLocalTask(id);
+      toast.success('Task deleted successfully!'); // Show success toast for deleting task
     },
   });
 
   useEffect(() => {
-    if (fetchedTasks) {
+    if (fetchedTasks) { 
       setTasks(fetchedTasks);
+    } else {
+      const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      setTasks(localTasks);
     }
   }, [fetchedTasks, setTasks]);
 
   const handleLogout = () => {
     logout();
+    toast.info('Logged out successfully!'); // Show toast for logout
     navigate('/auth');
   };
 
@@ -81,8 +93,8 @@ export function TaskDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <ListTodo className="h-8 w-8 text-blue-500" />
             <h1 className="text-2xl font-bold text-gray-900">Task Tracker</h1>
@@ -95,7 +107,7 @@ export function TaskDashboard() {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
           <TaskForm onSubmit={handleCreateTask} />
           <TaskFilter currentFilter={filter} onFilterChange={setFilter} />
 
@@ -122,4 +134,4 @@ export function TaskDashboard() {
       </div>
     </div>
   );
-} 
+}

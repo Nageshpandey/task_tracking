@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { UserPlus } from 'lucide-react';
 import { registerUser } from '../services/authService';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify'; // Import toast
 
 export const RegisterForm = ({ onRegisterSuccess }) => {
     const [email, setEmail] = useState('');
@@ -17,6 +18,7 @@ export const RegisterForm = ({ onRegisterSuccess }) => {
         try {
             const result = await registerUser(email, password);
             setSuccess(result.message);
+            toast.success('Registration successful!'); // Show success toast
             setEmail('');
             setPassword('');
             setTimeout(() => {
@@ -24,6 +26,7 @@ export const RegisterForm = ({ onRegisterSuccess }) => {
             }, 1500);
         } catch (err) {
             setError(err.message || 'Registration failed');
+            toast.error(err.message || 'Registration failed'); // Show error toast
         }
     };
 
@@ -83,4 +86,4 @@ export const RegisterForm = ({ onRegisterSuccess }) => {
 
 RegisterForm.propTypes = {
     onRegisterSuccess: PropTypes.func
-}; 
+};
